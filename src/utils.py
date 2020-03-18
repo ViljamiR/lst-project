@@ -18,7 +18,7 @@ def plot_two_variable_ts(data, var1, var2, title=" "):
     ax2 = ax.twinx()
     sns.lineplot(x='time', y=var2, data=data,
                  linewidth=0, marker="o", ms=2, mew=0.1)
-    ax2.set_ylabel(var)
+    ax2.set_ylabel(var2)
     plt.show()
 
 
@@ -74,11 +74,20 @@ def return_sliding_window_data(rr_i, w_size, feature_fun, feature_name):
     return results
 
 
-def return_sliding_window_time(time_data, rr_i,  w_size):
-    # Args:
+def return_sliding_window_time(time_data, rr_i, w_size):
+    # Args
     # time_data: pd.Dataframe
     # w_size: int
     timestamps = []
     for i in range(len(rr_i)-w_size-1):
         timestamps.append(time_data.iloc[int(i + w_size/2)])
     return timestamps
+
+
+def return_low_lf_hf_ratio(lf_hf_df):
+    """Returns the percentage of data points with low LF/HF-ratio  """
+    # LF/HF-ratio >= 1
+    df1 = lf_hf_df[lf_hf_df.lf_hf >= 1]
+    # LF/HF-ratio < 1
+    df2 = lf_hf_df[lf_hf_df.lf_hf < 1]
+    return len(df2.lf_hf) / len(lf_hf_df.lf_hf)

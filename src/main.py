@@ -9,7 +9,6 @@ from hrvanalysis import plot_poincare
 from hrvanalysis import remove_outliers, remove_ectopic_beats, interpolate_nan_values
 from hrvanalysis import plot_psd
 
-from utils import return_sliding_window, plot_time_series
 import utils as utils
 import print_utils as print_utils
 import plot_utils as plot_utils

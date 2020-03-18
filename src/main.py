@@ -30,7 +30,7 @@ def pretty(d, indent=0):
 
 def main():
     print("Importing dataset")
-    sleep_data = pd.read_csv("./sleep_16_2.csv")
+    sleep_data = pd.read_csv(".data/sleep_16_2.csv")
     # sleep_data_full = pd.read_csv("./sleep_full.csv")
 
     # sleep_data_full.time = pd.to_datetime(sleep_data_full.time, unit='s')
@@ -61,16 +61,13 @@ def main():
     # plt.show()
 
     # Plotting heart rate and Heart rate variability
-    fig, ax = plt.subplots()
-    sns.lineplot(x='time', y='hr', data=sleep_data, alpha=0.8, marker='o', linewidth=0, ms=2, mew=0.1, color="orange").set(
-        title="HRV and HR")
-    ax.set_ylabel("heart rate")
+    utils.plot_two_variable_ts(sleep_data, 'hr', 'hrv', 'HRV and HR')
 
-    ax2 = ax.twinx()
-    sns.lineplot(x='time', y='hrv', data=sleep_data,
-                 linewidth=0, marker="o", ms=2, mew=0.1)
-    ax2.set_ylabel("heart rate variability")
-    plt.show()
+    # ax2 = ax.twinx()
+    # sns.lineplot(x='time', y='hrv', data=sleep_data,
+    #              linewidth=0, marker="o", ms=2, mew=0.1)
+    # ax2.set_ylabel("heart rate variability")
+    # plt.show()
 
     # # This remove outliers from signal
     # rr_intervals_without_outliers = remove_outliers(rr_intervals=nn_intervals_list,
@@ -80,13 +77,6 @@ def main():
     #                                                    interpolation_method="linear")
 
     # # This remove ectopic beats from signal
-
-    # nn_intervals_list = np.array(remove_ectopic_beats(
-    #     rr_intervals=interpolated_rr_intervals, method="malik"))
-    # print(~np.isnan(nn_intervals_list))
-    # rr_intervals_without_outliers = np.array(rr_intervals_without_outliers)
-    # rr_intervals_without_outliers = rr_intervals_without_outliers[~np.isnan(
-    #     rr_intervals_without_outliers)]
     # nn_intervals_list = np.array(remove_ectopic_beats(
     #     rr_intervals=rr_intervals_without_outliers, method="malik"))
 
@@ -106,7 +96,7 @@ def main():
     pretty(poincare_plot_features)
 
     # # Geometrical features
-    geometrical_features = utils.return_poincare_plot_features(
+    geometrical_features = utils.return_geometrical_features(
         nn_intervals_list)
     print("Geometrical features")
     print(geometrical_features)
@@ -119,23 +109,14 @@ def main():
     print(frequency_domain_features)
     pretty(frequency_domain_features)
 
-    # hrv.plot_timeseries(rr_intervals_without_outliers)
-    # plot_poincare(rr_intervals_without_outliers, plot_sd_features=True)
-
-    # plot_psd(rr_intervals_without_outliers, method="welch")
-    # plot_psd(nn_intervals_list, method="lomb")
-    # plot_psd(rr_intervals_without_outliers, method="lomb")
-
     w_size = 300
-
-    lf_hf_results = []
-    timestamps = []
 
     # Get timestamps for sliding window
     timestamps = utils.return_sliding_window_time(
         sleep_data.time, nn_intervals_list, w_size)
 
     # Get LF/HF-ratio for sliding window
+    print("Computing the LF/HF-ratio")
     lf_hf_results = utils.return_sliding_window_data(
         nn_intervals_list, w_size, utils.return_frequency_domain_features, 'lf_hf_ratio')
 

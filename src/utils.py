@@ -4,8 +4,21 @@ import matplotlib.pyplot as plt
 import hrvanalysis as hrv
 
 
-def plot_time_series(T, Y, title=" ", *args):
+def plot_time_series(T, Y, title=" "):
     sns.lineplot(x=T, y=Y).set(title=title)
+    plt.show()
+
+
+def plot_two_variable_ts(data, var1, var2, title=" "):
+    fig, ax = plt.subplots()
+    sns.lineplot(x='time', y=var1, data=data, alpha=0.8, marker='o', linewidth=0, ms=2, mew=0.1, color="orange").set(
+        title=title)
+    ax.set_ylabel(var1)
+
+    ax2 = ax.twinx()
+    sns.lineplot(x='time', y=var2, data=data,
+                 linewidth=0, marker="o", ms=2, mew=0.1)
+    ax2.set_ylabel(var)
     plt.show()
 
 

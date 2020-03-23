@@ -16,32 +16,37 @@ import plot_utils as plot_utils
 
 def main():
     print("Importing dataset")
-    sleep_data_1 = pd.read_csv("../data/03-16-03-17.csv")
-    sleep_data_2 = pd.read_csv("../data/03-17-03-18.csv")
+    sleep_data_1 = pd.read_csv("./sleep_16_2.csv")
+    sleep_data_2 = pd.read_csv("./03-16-03-17.csv")
+    sleep_data_3 = pd.read_csv("./03-17-03-18.csv")
+    sleep_data = [sleep_data_1, sleep_data_2, sleep_data_3]
 
     print("---------------------")
     print("Resulting dataset")
     print(sleep_data_1.head())
+    
 
     # Add two hours to correct the time column
-    sleep_data_1.time = pd.to_datetime(
-        sleep_data_1.time, unit='s') + pd.Timedelta(hours=2)
+    for sleep in sleep_data:
+        sleep.time = pd.to_datetime(
+            sleep.time, unit='s')
 
     # sleep_not_null = sleep_data_1[sleep_data_1.hrv > 0]
     # rr_data = sleep_data_1[sleep_data_1.bbt0 > 0]
     # rr_data = rr_data[rr_data.bbt0 < 1500]
 
     print(sleep_data_1.head())
-
+    nn_intervals_list = []
     # Enable this when debugging
-    # sleep_data_1 = sleep_data_1.iloc[1:10000]
+    for sleep in sleep_data:
+        sleep = sleep.iloc[1:10000]
 
-    sleep_data_1.bbt0 = sleep_data_1.bbt0.replace(0, 750)
-    sleep_data_1.loc[(sleep_data_1.bbt0 > 1500), 'bbt0'] = 1500
-    # print(sleep_data_1.head())
-    # print(sleep_data_1.bbt0.mean())
+        sleep.bbt0 = sleep.bbt0.replace(0, 750)
+        sleep.loc[(sleep.bbt0 > 1500), 'bbt0'] = 1500
+        # print(sleep_data_1.head())
+        # print(sleep_data_1.bbt0.mean())
 
-    nn_intervals_list = list(sleep_data_1.bbt0)
+        nn_intervals_list.append(list(sleep.bbt0))
 
     sns.set()
 
@@ -54,13 +59,14 @@ def main():
     # plot_utils.plot_two_variable_ts(sleep_data_1, 'hr', 'hrv', 'HRV and HR')
 
     # Printing list of features for whole dataset
-    print_utils.print_features(nn_intervals_list)
+    for nn in nn_intervals_list:
+        print_utils.print_features(nn)
 
     # Set window size for sliding window
     w_size = 300
     # Get timestamps for sliding window
     timestamps = utils.return_sliding_window_time(
-        sleep_data_1.time, nn_intervals_list, w_size)
+        sleep_data_1.time, nn_intervals_list[0], w_size)
 
     # Get LF/HF-ratio for sliding window
     # print("Computing the LF/HF-ratios")
@@ -80,30 +86,34 @@ def main():
 
     # print("Percentage of low LF/HF-ratios: {}".format(ratio))
 
+    # Recovery ratio
+    recovery_ratio = utils.calculate_baseline_recovery_ratio(nn_intervals_list)
+    print(recovery_ratio)
     # RMDSD for whole night
-    total_rmssd = utils.return_time_domain_features(nn_intervals_list)['rmssd']
-
-    print("RMSSD for whole night: {}".format(total_rmssd))
-    print("Computing the  RMMSD-values")
-    rmssd_results = utils.return_sliding_window_data(
-        nn_intervals_list, w_size, utils.return_time_domain_features, 'rmssd')
-    d = {'rmssd': rmssd_results, 'time': timestamps}
-    rmssd_results = pd.DataFrame(d)
-    print("Done")
-    print("–––––––––––––––––––––––––––")
-
-    # # Plotting RMMSD-data
-    print("Plotting the RMMSD-values")
-    # plot_utils.plot_lf_hf(rmssd_results, timestamps, w_size)
-    title = "RMSSD-values (window size: {}s) ".format(w_size)
-
-    sns.lineplot(x='time', y='rmssd', data=rmssd_results,
-                 marker='o', linewidth=0, ms=3, mew=0.1).set(title=title)
-    plt.axhline(total_rmssd, linestyle='--', c='red')
-    plt.show()
+    #total_rmssd = utils.return_time_domain_features(nn_intervals_list)['rmssd']
+    #
+    #print("RMSSD for whole night: {}".format(total_rmssd))
+    #print("Computing the  RMMSD-values")
+    #
+    #rmssd_results = utils.return_sliding_window_data(
+    #    nn_intervals_list, w_size, utils.return_time_domain_features, 'rmssd')
+    #d = {'rmssd': rmssd_results, 'time': timestamps}
+    #rmssd_results = pd.DataFrame(d)
+    #print("Done")
+    #print("–––––––––––––––––––––––––––")
+    #
+    ## # Plotting RMMSD-data
+    #print("Plotting the RMMSD-values")
+    ## plot_utils.plot_lf_hf(rmssd_results, timestamps, w_size)
+    #title = "RMSSD-values (window size: {}s) ".format(w_size)
+    
+    #sns.lineplot(x=timestamps, y=[int(r) for r in rmssd_results.rmssd],
+    #             marker='o', linewidth=0, ms=3, mew=0.1).set(title=title)
+    #print("ainaki tää meni")
+    #plt.axhline(total_rmssd, linestyle='--', c='red')
+    #plt.show()
     # ratio = utils.return_low_lf_hf_ratio(lf_hf_results)
 
     # print("Percentage of low LF/HF-ratios: {}".format(ratio))
-
 
 main()

@@ -2,7 +2,7 @@ from itertools import islice
 import seaborn as sns
 import matplotlib.pyplot as plt
 import hrvanalysis as hrv
-
+import numpy as np
 
 def save_df_to_csv(df, filename):
     df.to_csv(filename,
@@ -46,6 +46,39 @@ def return_frequency_domain_features(rr_i):
 def return_single_feature(feature_dict, feature_name):
     return feature_dict[feature_name]
 
+def calculate_baseline_recovery_ratio(rr_is, threshold=1.5, w_size=300):
+    """
+    This function calculates the baseline recovery ratio for a list of nights
+
+    Input:
+        - rr_i              list of lists of beat-to-beat intervals
+        - threshold         cut off value for calling recovery
+        - w_size            window size for sliding window
+    Output:
+        - recovery_ratio    Recovery ratio for one night
+    """
+
+    return np.mean([calculate_recovery_ratio(rr_i, threshold, w_size) for rr_i in rr_is])
+
+
+def calculate_recovery_ratio(rr_i, threshold=1.5, w_size=300):
+    """
+    This function calculates the recovery ratio for one night given rr i data
+
+    Input:
+        - rr_i              beat-to-beat intervals
+        - threshold         cut off value for calling recovery
+        - w_size            window size for sliding window
+    Output:
+        - recovery_ratio    Recovery ratio for one night
+    """
+    freq = return_frequency_domain_features(rr_i)
+    lf_hf_ratio_data = np.array(return_sliding_window_data(rr_i, w_size, return_frequency_domain_features, "lf_hf_ratio"))
+    lows = len(lf_hf_ratio_data[lf_hf_ratio_data < threshold])
+
+    recovery_ratio = lows / len(lf_hf_ratio_data)
+    
+    return recovery_ratio
 
 def return_sliding_window_data(rr_i, w_size, feature_fun, feature_name):
     results = []

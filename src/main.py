@@ -33,7 +33,9 @@ def main():
 
     print(sleep_data_1.head())
 
-    sleep_data_1 = sleep_data_1.iloc[1:10000]
+    # Enable this when debugging
+    # sleep_data_1 = sleep_data_1.iloc[1:10000]
+
     sleep_data_1.bbt0 = sleep_data_1.bbt0.replace(0, 750)
     sleep_data_1.loc[(sleep_data_1.bbt0 > 1500), 'bbt0'] = 1500
     # print(sleep_data_1.head())
@@ -49,15 +51,7 @@ def main():
     # plt.show()
 
     # Plotting heart rate and Heart rate variability
-    plot_utils.plot_two_variable_ts(sleep_data_1, 'hr', 'hrv', 'HRV and HR')
-
-    # # This remove outliers from signal
-    # rr_intervals_without_outliers = remove_outliers(rr_intervals=nn_intervals_list,
-    #                                                 low_rri=500, high_rri=1500)
-
-    # # This remove ectopic beats from signal
-    # nn_intervals_list = np.array(remove_ectopic_beats(
-    #     rr_intervals=rr_intervals_without_outliers, method="malik"))
+    # plot_utils.plot_two_variable_ts(sleep_data_1, 'hr', 'hrv', 'HRV and HR')
 
     # Printing list of features for whole dataset
     print_utils.print_features(nn_intervals_list)
@@ -69,22 +63,47 @@ def main():
         sleep_data_1.time, nn_intervals_list, w_size)
 
     # Get LF/HF-ratio for sliding window
-    print("Computing the LF/HF-ratios")
-    lf_hf_results = utils.return_sliding_window_data(
-        nn_intervals_list, w_size, utils.return_frequency_domain_features, 'lf_hf_ratio')
+    # print("Computing the LF/HF-ratios")
+    # lf_hf_results = utils.return_sliding_window_data(
+    #     nn_intervals_list, w_size, utils.return_frequency_domain_features, 'lf_hf_ratio')
+    # print("Done")
+    # print("–––––––––––––––––––––––––––")
+
+    # d = {'lf_hf': lf_hf_results, 'time': timestamps}
+    # lf_hf_results = pd.DataFrame(d)
+
+    # # # Plotting LF/HF-data
+    # print("Plotting the LF/HF-ratios")
+    # plot_utils.plot_lf_hf(lf_hf_results, timestamps, w_size)
+
+    # ratio = utils.return_low_lf_hf_ratio(lf_hf_results)
+
+    # print("Percentage of low LF/HF-ratios: {}".format(ratio))
+
+    # RMDSD for whole night
+    total_rmssd = utils.return_time_domain_features(nn_intervals_list)['rmssd']
+
+    print("RMSSD for whole night: {}".format(total_rmssd))
+    print("Computing the  RMMSD-values")
+    rmssd_results = utils.return_sliding_window_data(
+        nn_intervals_list, w_size, utils.return_time_domain_features, 'rmssd')
+    d = {'rmssd': rmssd_results, 'time': timestamps}
+    rmssd_results = pd.DataFrame(d)
     print("Done")
     print("–––––––––––––––––––––––––––")
 
-    d = {'lf_hf': lf_hf_results, 'time': timestamps}
-    lf_hf_results = pd.DataFrame(d)
+    # # Plotting RMMSD-data
+    print("Plotting the RMMSD-values")
+    # plot_utils.plot_lf_hf(rmssd_results, timestamps, w_size)
+    title = "RMSSD-values (window size: {}s) ".format(w_size)
 
-    # # Plotting LF/HF-data
-    print("Plotting the LF/HF-ratios")
-    plot_utils.plot_lf_hf(lf_hf_results, timestamps, w_size)
+    sns.lineplot(x='time', y='rmssd', data=rmssd_results,
+                 marker='o', linewidth=0, ms=3, mew=0.1).set(title=title)
+    plt.axhline(total_rmssd, linestyle='--', c='red')
+    plt.show()
+    # ratio = utils.return_low_lf_hf_ratio(lf_hf_results)
 
-    ratio = utils.return_low_lf_hf_ratio(lf_hf_results)
-
-    print("Percentage of low LF/HF-ratios: {}".format(ratio))
+    # print("Percentage of low LF/HF-ratios: {}".format(ratio))
 
 
 main()

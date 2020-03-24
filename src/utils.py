@@ -4,19 +4,10 @@ import matplotlib.pyplot as plt
 import hrvanalysis as hrv
 import numpy as np
 
+
 def save_df_to_csv(df, filename):
     df.to_csv(filename,
               index=False, header=True)
-
-
-def return_sliding_window(input_list, n, step_size):
-    iterable = iter(input_list)
-    result = list(islice(iterable, n, None, step_size))
-    if len(result) == n:
-        yield result
-    for elem in iterable:
-        result = result[1:] + list((elem,))
-        yield result
 
 
 def return_time_domain_features(rr_i):
@@ -46,6 +37,7 @@ def return_frequency_domain_features(rr_i):
 def return_single_feature(feature_dict, feature_name):
     return feature_dict[feature_name]
 
+
 def calculate_baseline_recovery_ratio(rr_is, threshold=1.5, w_size=300):
     """
     This function calculates the baseline recovery ratio for a list of nights
@@ -58,7 +50,7 @@ def calculate_baseline_recovery_ratio(rr_is, threshold=1.5, w_size=300):
         - recovery_ratio    Recovery ratio for one night
     """
 
-    return np.mean([calculate_recovery_ratio(rr_i, threshold, w_size) for rr_i in rr_is])
+    return np.mean(return_recovery_ratios(rr_is, threshold, w_size))
 
 
 def calculate_recovery_ratio(rr_i, threshold=1.5, w_size=300):
@@ -67,18 +59,46 @@ def calculate_recovery_ratio(rr_i, threshold=1.5, w_size=300):
 
     Input:
         - rr_i              beat-to-beat intervals
-        - threshold         cut off value for calling recovery
+        - threshold         cut off value (LF/HF) for calling recovery
         - w_size            window size for sliding window
     Output:
         - recovery_ratio    Recovery ratio for one night
     """
     freq = return_frequency_domain_features(rr_i)
-    lf_hf_ratio_data = np.array(return_sliding_window_data(rr_i, w_size, return_frequency_domain_features, "lf_hf_ratio"))
+    lf_hf_ratio_data = np.array(return_sliding_window_data(
+        rr_i, w_size, return_frequency_domain_features, "lf_hf_ratio"))
     lows = len(lf_hf_ratio_data[lf_hf_ratio_data < threshold])
 
     recovery_ratio = lows / len(lf_hf_ratio_data)
-    
+
     return recovery_ratio
+
+
+def return_recovery_ratios(rr_is, threshold=1.5, w_size=300):
+    """
+    This function calculates the recovery ratio list of nights given RR-interval data
+
+    Input:
+        - rr_i              list of lists of beat-to-beat intervals
+        - threshold         cut off value for calling recovery
+        - w_size            window size for sliding window
+    Output:
+        - recovery_ratios    Recovery ratio for each night
+    """
+    return [calculate_recovery_ratio(rr_i, threshold, w_size) for rr_i in rr_is]
+
+
+def return_recovery_nights(recovery_ratios, threshold):
+    """
+    This function returns recovery nights, where recovery ratio was over treshold value
+    Input:
+        - recovery_ratios   list of recovery ratios
+        - threshold         cut off value for calling recovery
+    Output:
+        - recovered_nights  Array indicating which night had recovery ratio over treshold-value
+    """
+    return [1 if ratio > threshold else 0 for ratio in recovery_ratios]
+
 
 def return_sliding_window_data(rr_i, w_size, feature_fun, feature_name):
     results = []
@@ -90,9 +110,7 @@ def return_sliding_window_data(rr_i, w_size, feature_fun, feature_name):
 
 
 def return_sliding_window_time(time_data, rr_i, w_size):
-    # Args
-    # time_data: pd.Dataframe
-    # w_size: int
+
     timestamps = []
     for i in range(len(rr_i)-w_size-1):
         timestamps.append(time_data.iloc[int(i + w_size/2)])

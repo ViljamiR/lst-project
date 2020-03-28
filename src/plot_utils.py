@@ -33,6 +33,35 @@ def plot_lf_hf(lf_hf_df, w_size, treshold):
     plt.show()
 
 
+def plot_recovery_ratios(night_df, w_size, treshold):
+
+    title = "Recovery ratios (window size: {}s) ".format(w_size)
+
+    # LF/HF-ratio >= 1
+    df1 = night_df[lf_hf_df.recovered == 1]
+    # LF/HF-ratio < 1
+    df2 = night_df[lf_hf_df.recovered == 0]
+
+    # Plotting LF/HF-ratio >= 1 using red color
+    sns.lineplot(x=df1.night_index, y=df1.recovery_ratios, c='#FF7A60',
+                 marker='o', linewidth=0, ms=3, mew=0.1).set(title=title)
+
+    # Plotting LF/HF-ratio >= 1 using green color
+    sns.lineplot(x=df2.night_index, y=df2.recovery_ratios, c='#41E870',
+                 marker='o', linewidth=0, ms=3, mew=0.1).set(title=title)
+
+    l1 = 'Recovery ratio >= {}'.format(treshold)
+    l2 = 'Recovery ratio < {}'.format(treshold)
+    plt.legend([l1, l2], loc=1)
+
+    plt.axhline(treshold, linestyle='--', c='red')
+
+    # Set limit to exclude outliers
+    plt.ylim(0, 5)
+    plt.ylabel('Recovery ratio')
+    plt.show()
+
+
 def plot_time_series(T, Y, title=" "):
     sns.lineplot(x=T, y=Y).set(title=title)
     plt.show()

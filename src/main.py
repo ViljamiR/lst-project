@@ -16,7 +16,7 @@ import plot_utils as plot_utils
 
 def main():
     print("Importing dataset")
-    sleep_data_1 = pd.read_csv("./sleep_16_2.csv")
+    sleep_data_1 = pd.read_csv("./data/sleep_16_2.csv")
     sleep_data_2 = pd.read_csv("./data/03-16-03-17.csv")
     sleep_data_3 = pd.read_csv("./data/03-17-03-18.csv")
     sleep_data = [sleep_data_1, sleep_data_2, sleep_data_3]
@@ -63,6 +63,7 @@ def main():
 
     # Set window size for sliding window
     w_size = 300
+    
     # Get timestamps for sliding window
     timestamps = utils.return_sliding_window_time(
         sleep_data_1.time, nn_intervals_list[0], w_size)
@@ -79,7 +80,7 @@ def main():
 
     # Plotting LF/HF-data
     print("Plotting the LF/HF-ratios")
-    plot_utils.plot_lf_hf(lf_hf_results, timestamps, w_size, treshold=1.5)
+    #plot_utils.plot_lf_hf(lf_hf_results, w_size, treshold=1.5)
 
     # Ratio of low LF/HF
     ratio = utils.return_low_lf_hf_ratio(lf_hf_results)
@@ -95,7 +96,7 @@ def main():
 
     # Recovery ratios for all nights
     # print("Recovery ratios for all nights:")
-    recovery_ratios = utils.return_recovery_ratios(nn_intervals_list)
+    recovery_ratios = utils.return_recovery_ratios(nn_intervals_list, threshold, w_size)
     print_utils.print_recovery_ratios(recovery_ratios)
 
     # Return nights with recovery ratio over baseline ratio
@@ -115,20 +116,23 @@ def main():
     # Saving dataset
     utils.save_df_to_csv(night_df, 'recovery_data.csv')
 
+    # Plot all recovery ratios
+    plot_utils.plot_recovery_ratios(night_df, w_size, baseline_recovery_ratio)
+
     # RMDSD for whole night
 
-    total_rmssd = utils.return_time_domain_features(
-        nn_intervals_list[0])['rmssd']
-
-    print("RMSSD for whole night: {}".format(total_rmssd))
-    print("Computing the  RMMSD-values")
-
-    rmssd_results = utils.return_sliding_window_data(
-        nn_intervals_list[0], w_size, utils.return_time_domain_features, 'rmssd')
-    d = {'rmssd': rmssd_results, 'time': timestamps}
-    rmssd_results = pd.DataFrame(d)
-    print("Done")
-    print("–––––––––––––––––––––––––––")
+    #total_rmssd = utils.return_time_domain_features(
+    #    nn_intervals_list[0])['rmssd']
+    #
+    #print("RMSSD for whole night: {}".format(total_rmssd))
+    #print("Computing the  RMMSD-values")
+    #
+    #rmssd_results = utils.return_sliding_window_data(
+    #    nn_intervals_list[0], w_size, utils.return_time_domain_features, 'rmssd')
+    #d = {'rmssd': rmssd_results, 'time': timestamps}
+    #rmssd_results = pd.DataFrame(d)
+    #print("Done")
+    #print("–––––––––––––––––––––––––––")
 
     #
     # Plotting RMMSD-data

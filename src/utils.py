@@ -91,7 +91,7 @@ def return_recovery_ratios(rr_is, threshold=1.5, w_size=300):
     Output:
         - recovery_ratios    Recovery ratio for each night
     """
-    return [calculate_recovery_ratio(rr_i, threshold, w_size) for rr_i in rr_is]
+    return [calculate_recovery_ratio(rr_i, threshold, w_size) for rr_i in rr_is], w_size, threshold
 
 
 def return_recovery_nights(recovery_ratios, threshold):

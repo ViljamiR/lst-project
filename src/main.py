@@ -26,9 +26,9 @@ def main():
     print(sleep_data_1.head())
 
     # Add two hours to correct the time column
-    for sleep in sleep_data:
-        sleep.time = pd.to_datetime(
-            sleep.time, unit='s')
+    # for sleep in sleep_data:
+    #     sleep.time = pd.to_datetime(
+    #         sleep.time, unit='s')
 
     # sleep_not_null = sleep_data_1[sleep_data_1.hrv > 0]
     # rr_data = sleep_data_1[sleep_data_1.bbt0 > 0]
@@ -78,7 +78,7 @@ def main():
 
     # Plotting LF/HF-data
     print("Plotting the LF/HF-ratios")
-    plot_utils.plot_lf_hf(lf_hf_results, timestamps, w_size)
+    plot_utils.plot_lf_hf(lf_hf_results, timestamps, w_size, treshold=1.5)
 
     # Ratio of low LF/HF
     ratio = utils.return_low_lf_hf_ratio(lf_hf_results)
@@ -103,6 +103,17 @@ def main():
 
     print_utils.print_recovery_nights(recovery_nights)
 
+    night_idxs = [i for i in range(len(recovery_nights))]
+
+    # Generate dataframe
+    night_df = utils.generate_dataframe([night_idxs, recovery_ratios, recovery_nights], ['night_index',
+                                                                                         'recovery_ratios', 'recovered'])
+
+    print(night_df)
+
+    # Saving dataset
+    utils.save_df_to_csv(night_df, 'recovery_data.csv')
+
     # RMDSD for whole night
 
     total_rmssd = utils.return_time_domain_features(
@@ -117,17 +128,18 @@ def main():
     rmssd_results = pd.DataFrame(d)
     print("Done")
     print("–––––––––––––––––––––––––––")
+
     #
     # Plotting RMMSD-data
-    print("Plotting the RMMSD-values")
+    # print("Plotting the RMMSD-values")
 
-    title = "RMSSD-values (window size: {}s) ".format(w_size)
+    # title = "RMSSD-values (window size: {}s) ".format(w_size)
 
-    sns.lineplot(x=timestamps, y=[r for r in rmssd_results.rmssd],
-                 marker='o', linewidth=0, ms=3, mew=0.1).set(title=title)
+    # sns.lineplot(x=timestamps, y=[r for r in rmssd_results.rmssd],
+    #              marker='o', linewidth=0, ms=3, mew=0.1).set(title=title)
 
-    plt.axhline(total_rmssd, linestyle='--', c='red')
-    plt.show()
+    # plt.axhline(total_rmssd, linestyle='--', c='red')
+    # plt.show()
 
 
 main()

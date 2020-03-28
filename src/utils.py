@@ -3,11 +3,17 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import hrvanalysis as hrv
 import numpy as np
+import pandas as pd
 
 
 def save_df_to_csv(df, filename):
     df.to_csv(filename,
               index=False, header=True)
+
+
+def generate_dataframe(data_list, titles):
+    data_dict = dict(zip(titles, data_list))
+    return pd.DataFrame(data_dict)
 
 
 def return_time_domain_features(rr_i):

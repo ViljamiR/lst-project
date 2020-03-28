@@ -2,14 +2,14 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
-def plot_lf_hf(lf_hf_df, timestamps, w_size):
+def plot_lf_hf(lf_hf_df, timestamps, w_size, treshold):
 
     title = "LF/HF-ratio (window size: {}s) ".format(w_size)
 
     # LF/HF-ratio >= 1
-    df1 = lf_hf_df[lf_hf_df.lf_hf >= 1]
+    df1 = lf_hf_df[lf_hf_df.lf_hf >= treshold]
     # LF/HF-ratio < 1
-    df2 = lf_hf_df[lf_hf_df.lf_hf < 1]
+    df2 = lf_hf_df[lf_hf_df.lf_hf < treshold]
 
     # Plotting LF/HF-ratio >= 1 using red color
     sns.lineplot(x=df1.time, y=df1.lf_hf, c='#FF7A60',
@@ -18,7 +18,10 @@ def plot_lf_hf(lf_hf_df, timestamps, w_size):
     # Plotting LF/HF-ratio >= 1 using green color
     sns.lineplot(x=df2.time, y=df2.lf_hf, c='#41E870',
                  marker='o', linewidth=0, ms=3, mew=0.1).set(title=title)
-    plt.legend(['LF/HF-ratio >= 1', 'LF/HF-ratio < 1'], loc=1)
+
+    l1 = 'LF/HF-ratio >= {}'.format(treshold)
+    l2 = 'LF/HF-ratio < {}'.format(treshold)
+    plt.legend([l1, l2], loc=1)
 
     # Set limit to exclude outliers
     plt.ylim(0, 5)

@@ -1,11 +1,13 @@
 import seaborn as sns
 import matplotlib.pyplot as plt
+import pandas as pd
 
 
-def plot_lf_hf(lf_hf_df, timestamps, w_size, treshold):
+def plot_lf_hf(lf_hf_df, w_size, treshold):
 
     title = "LF/HF-ratio (window size: {}s) ".format(w_size)
 
+    lf_hf_df.time = pd.to_datetime(lf_hf_df.time, unit='s')
     # LF/HF-ratio >= 1
     df1 = lf_hf_df[lf_hf_df.lf_hf >= treshold]
     # LF/HF-ratio < 1
@@ -23,8 +25,11 @@ def plot_lf_hf(lf_hf_df, timestamps, w_size, treshold):
     l2 = 'LF/HF-ratio < {}'.format(treshold)
     plt.legend([l1, l2], loc=1)
 
+    plt.axhline(treshold, linestyle='--', c='red')
+
     # Set limit to exclude outliers
     plt.ylim(0, 5)
+    plt.ylabel('LF/HF-ratio')
     plt.show()
 
 

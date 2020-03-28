@@ -26,9 +26,9 @@ def main():
     print(sleep_data_1.head())
 
     # Add two hours to correct the time column
-    # for sleep in sleep_data:
-    #     sleep.time = pd.to_datetime(
-    #         sleep.time, unit='s')
+    for sleep in sleep_data:
+        sleep.time = pd.to_datetime(
+            sleep.time, unit='s')
 
     # sleep_not_null = sleep_data_1[sleep_data_1.hrv > 0]
     # rr_data = sleep_data_1[sleep_data_1.bbt0 > 0]
@@ -38,6 +38,7 @@ def main():
     nn_intervals_list = []
     # Enable this when debugging
     for sleep in sleep_data:
+        # REMOVE THIS
         sleep = sleep.iloc[1:10000]
         sleep.bbt0 = sleep.bbt0.replace(0, 750)
         sleep.loc[(sleep.bbt0 > 1500), 'bbt0'] = 1500
